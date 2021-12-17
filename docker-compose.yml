@@ -1,0 +1,18 @@
+version: '3.7'
+services:
+  postgres:
+    image: postgres:13
+    container_name: postgres
+    restart: always
+    ports:
+      - 5433:5432
+    environment:
+      POSTGRES_PASSWORD: hpal
+      POSTGRES_USER: hpal
+      POSTGRES_DB: happypal_technical_test
+    volumes:
+      - postgres:/var/lib/postgresql/data
+
+volumes:
+  postgres:
+    name: hpal
