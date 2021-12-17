@@ -2,17 +2,17 @@
 
 ## Préambule:
 
-Ce test a pour but de tester différents aspects que vous serez amenez à rencontrer tous les jours. Vous avez carte blanche quant aux détails d'implémentations, il s'agit ici de tester votre projection dans un produit (simple) et les solutions que vous apportez.
+Ce test a pour but de tester différents aspects que vous serez amené à rencontrer tous les jours. Vous avez carte blanche quant aux détails d'implémentations, il s'agit ici de tester votre projection dans un produit (simple) et les solutions que vous apportez.
 
 Nous allons ici réaliser un mini clone d'amazon composées de 3 pages (au plus si vous le souhaitez).
 
 La page d'accueil qui listera les produits mis en vente sous forme de cartes
-La page produit qui affichera le détails de ces produits
-La page vendeur qui similaire à la page d'accueil affiche des produits qui eux seront liés à un vendeur précisément
+La page produit qui affichera le détail de ces produits
+La page vendeur qui, similaire à la page d'accueil affiche des produits, qui eux seront liés à un vendeur précisément
 
-Un jeu de données vous ai fourni pour réaliser ce test, vous pouvez bien entendu le modifier voire refaire le votre.
+Un jeu de données vous ait fourni pour réaliser ce test, vous pouvez bien entendu le modifier, voire refaire le vôtre.
 
-Tout code fourni est bon à utiliser et a modifier, n'hésitez pas à changer les méthodes mises en places pour convenir à vos besoins.
+Tout code fourni est bon à utiliser et à modifier, n'hésitez pas à changer les méthodes mises en places pour convenir à vos besoins.
 
 ## Consignes:
 Les points d'évaluations ci-dessous vous donne une indication de ce qui est attendu mais il n'est en aucun nécessaire de répondre à toutes les demandes, à vous de choisir de développer les points que vous souhaitez.
