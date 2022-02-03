@@ -9,6 +9,7 @@ import { Repository } from 'typeorm';
 
 import { Viewer } from '@/auth/decorators/Viewer.decorator';
 import { PaginationService } from '@/pagination/pagination.service';
+import { Picture } from '@/picture/models/picture.model';
 import { PictureService } from '@/picture/picture.service';
 import { User } from '@/user/models/user.model';
 
@@ -34,13 +35,13 @@ export class ProductService {
   /**
    * SELF RESOLVERS
    */
-  public async getProductPictures(viewer: Viewer, parent: Product) {
-    return this.productRepo
-      .createQueryBuilder('product')
-      .where('product.id = :productId')
-      .relation(Product, 'pictures')
-      .of(parent)
-      .loadMany();
+  public async getProductPictures(
+    viewer: Viewer,
+    parent: Product,
+  ): Promise<Picture[]> {
+    const query = await this.generateProductQuery(viewer);
+
+    return query.relation('pictures').of(parent).loadMany<Picture>();
   }
 
   /**
