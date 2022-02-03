@@ -55,7 +55,7 @@ async function seed() {
   products.push(
     new Product({
       name: 'Voiture miniature',
-      description: 'Une jolie petit voiture',
+      description: 'Une jolie petite voiture',
       owner: users[0],
       pictures: [pictures['car-model.jpeg']],
       priceCurrency: 'EUR',
@@ -128,7 +128,7 @@ async function seed() {
 
   products.push(
     new Product({
-      name: 'Chaussres de sport',
+      name: 'Chaussures de sport',
       owner: users[0],
       pictures: [pictures['shoe.jpeg']],
       priceCurrency: 'EUR',
