@@ -71,7 +71,7 @@ export class PictureService {
    * UTILS
    */
 
-  public async generatePictureQuery(viewer: Viewer, alias = 'picture') {
+  public generatePictureQuery(viewer: Viewer, alias = 'picture') {
     const query = this.pictureRepo.createQueryBuilder(alias);
 
     return query;
