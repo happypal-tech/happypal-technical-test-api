@@ -12,6 +12,7 @@ import crypto from 'crypto';
 import { Connection, Repository } from 'typeorm';
 
 import { User } from '@/user/models/user.model';
+import { UserService } from '@/user/user.service';
 
 import { RegisterDTO } from './dto/register-dto';
 import {
@@ -26,14 +27,12 @@ import { JwtRefreshTokenPayload } from './strategies/jwt-refresh.strategy';
 export class AuthService {
   constructor(
     private readonly connection: Connection,
-    @InjectRepository(User)
-    private readonly userRepo: Repository<User>,
     @InjectRepository(RefreshToken)
     private readonly refreshTokenRepo: Repository<RefreshToken>,
     @InjectRepository(ResetPasswordToken)
     private readonly resetPasswordTokenRepo: Repository<ResetPasswordToken>,
-
     private readonly jwtService: JwtService,
+    private readonly userService: UserService,
   ) {}
 
   /**
@@ -48,8 +47,7 @@ export class AuthService {
     email: string,
     password: string,
   ): Promise<User> {
-    const identifier = email.trim().toLowerCase();
-    const user = await this.userRepo.findOne({ where: { email: identifier } });
+    const user = await this.userService.findByEmail(email);
 
     if (!user) throw new UnauthorizedException('auth/user-not-found');
 
@@ -73,11 +71,10 @@ export class AuthService {
   public async validateJwtUser(
     payload: JwtAccessTokenPayload,
   ): Promise<{ user: User }> {
-    const user = await this.userRepo
-      .createQueryBuilder('user')
-      .where('user.id = :sub')
-      .setParameters({ sub: payload.sub })
-      .getOne();
+    const user = await this.userService.findById(payload.sub).then(
+      (data) => data,
+      () => null,
+    );
 
     if (!user) throw new UnauthorizedException('auth/user-not-found');
 
@@ -145,22 +142,18 @@ export class AuthService {
   }
 
   public async register(body: RegisterDTO) {
-    const existingUser = await this.userRepo
-      .createQueryBuilder('user')
-      .where('user.email = :email')
-      .setParameters({ email: body.email.trim().toLowerCase() })
-      .getOne();
+    const existingUser = await this.userService.findByEmail(body.email);
 
     if (existingUser) {
       throw new ForbiddenException('auth/user-already-exist');
     }
 
     const user = new User({
-      email: body.email.trim().toLowerCase(),
+      email: this.userService.getSearchableEmail(body.email),
       password: await this._hashPassword(body.password),
     });
 
-    await this.userRepo.save(user);
+    await this.userService.save(user);
 
     const [accessToken, refreshToken] = await Promise.all([
       this._generateJwtAccessToken(user),
@@ -213,9 +206,7 @@ export class AuthService {
   }
 
   public async forgottenPassword(email: string) {
-    const user = await this.userRepo.findOne({
-      where: { email },
-    });
+    const user = await this.userService.findByEmail(email, true);
 
     if (!user) throw new NotFoundException('auth/user-not-found');
 
@@ -263,7 +254,7 @@ export class AuthService {
   public async updatePassword(user: User, password: string) {
     user.password = await this._hashPassword(password);
 
-    return this.userRepo.save(user);
+    return this.userService.save(user);
   }
 
   private async _generateMasterJwtRefreshToken(user: User) {
@@ -305,7 +296,7 @@ export class AuthService {
 
   private async _generateJwtAccessToken(user: User | User['id']) {
     if (typeof user === 'string') {
-      user = await this.userRepo.findOneOrFail(user);
+      user = await this.userService.findById(user);
     }
 
     const payload: JwtAccessTokenPayload = {
@@ -314,7 +305,7 @@ export class AuthService {
       type: 'AccessToken',
     };
 
-    await this.userRepo.save(user);
+    await this.userService.save(user);
 
     return this.jwtService.sign(payload, {
       expiresIn: 1000 * 60 * 10, // 10 minutes,
