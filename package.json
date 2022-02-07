@@ -103,7 +103,10 @@
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
     "setupFiles": [
-      "../jest/setEnv.js"
-    ]
+      "<rootDir>../jest/setEnv.js"
+    ],
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/$1"
+    }
   }
 }
