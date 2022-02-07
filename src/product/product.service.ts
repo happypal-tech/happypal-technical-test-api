@@ -24,12 +24,14 @@ import {
 import { Product } from './models/product.model';
 
 @Injectable()
-export class ProductService {
+export class ProductService extends PaginationService {
   constructor(
     @InjectRepository(Product)
     private readonly productRepo: Repository<Product>,
     private readonly pictureService: PictureService,
-  ) {}
+  ) {
+    super();
+  }
 
   /**
    * SELF RESOLVERS
@@ -58,11 +60,9 @@ export class ProductService {
       .where('owner.id = :parentId')
       .setParameters({ parentId: parent.id });
 
-    return PaginationService.generatePaginationOutput(
-      query,
-      args,
-      (entity) => ({ node: entity }),
-    );
+    return this.generatePaginationOutput(query, args, (entity) => ({
+      node: entity,
+    }));
   }
 
   /**
@@ -95,11 +95,9 @@ export class ProductService {
       );
     }
 
-    return PaginationService.generatePaginationOutput(
-      query,
-      args,
-      (entity) => ({ node: entity }),
-    );
+    return this.generatePaginationOutput(query, args, (entity) => ({
+      node: entity,
+    }));
   }
 
   /**

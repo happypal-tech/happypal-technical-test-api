@@ -11,7 +11,6 @@ import { BadRequestError } from './error/errors/BadRequest.error';
 import { flattenValidationErrors } from './error/utils/flattenValidationErrors';
 import { GraphqlModule } from './graphql/graphql.module';
 import { NodeModule } from './node/node.module';
-import { PaginationModule } from './pagination/pagination.module';
 import { PictureModule } from './picture/picture.module';
 import { ProductModule } from './product/product.module';
 import { UserModule } from './user/user.module';
@@ -22,7 +21,7 @@ import { UserModule } from './user/user.module';
       type: 'postgres',
       host: 'localhost',
       port: 5433,
-      database: 'happypal_technical_test',
+      database: process.env.TYPEORM_DB || 'happypal_technical_test',
       username: 'hpal',
       password: 'hpal',
       entities: [path.join(__dirname, '**/*.model{.ts,.js}')],
@@ -34,7 +33,6 @@ import { UserModule } from './user/user.module';
     GraphqlModule,
     AuthModule,
     ProductModule,
-    PaginationModule,
     PictureModule,
   ],
   controllers: [AppController],

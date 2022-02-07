@@ -6,8 +6,6 @@
 
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 
-import { Injectable } from '@nestjs/common';
-
 import { zip } from 'lodash';
 import { SelectQueryBuilder } from 'typeorm';
 
@@ -15,9 +13,8 @@ import { Node } from '@/node/models/node.model';
 
 import { PaginationArgs } from './dto/pagination.dto';
 
-@Injectable()
-export class PaginationService {
-  public static async generatePaginationOutput<
+export abstract class PaginationService {
+  protected async generatePaginationOutput<
     T extends Node,
     N extends Node,
     RT extends { node: N },
@@ -64,7 +61,7 @@ export class PaginationService {
     };
   }
 
-  public static generateCursor(node: Node) {
+  protected generateCursor(node: Node) {
     return Buffer.from(node.id, 'base64').toString('ascii');
   }
 }
