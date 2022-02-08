@@ -11,7 +11,7 @@ import { Picture } from '@/picture/models/picture.model';
 import { Product } from '@/product/models/product.model';
 import { User } from '@/user/models/user.model';
 
-async function seed() {
+export const seed = async function () {
   console.log('Seeding started');
 
   await reuseOrcreateTypeormConnection();
@@ -181,7 +181,7 @@ async function seed() {
   });
 
   console.log('Seeding completed');
-}
+};
 
 async function hashPassword(password: string) {
   return bcrypt.hash(password, 10);
