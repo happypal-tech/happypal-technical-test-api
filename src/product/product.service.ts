@@ -88,13 +88,6 @@ export class ProductService extends PaginationService {
     const query = this.generateProductFilteredQuery(viewer, args);
     query.innerJoinAndSelect('product.owner', 'owner');
 
-    if (args.nameOrDescription) {
-      query.andWhere(
-        "to_tsvector(product.name || ' ' || product.description) @@ to_tsquery(:nameOrDescription)",
-        { nameOrDescription: args.nameOrDescription.split(' ').join('|') },
-      );
-    }
-
     return this.generatePaginationOutput(query, args, (entity) => ({
       node: entity,
     }));
@@ -160,6 +153,13 @@ export class ProductService extends PaginationService {
     alias = 'product',
   ) {
     const query = this.generateProductQuery(viewer, alias);
+
+    if (args.nameOrDescription) {
+      query.andWhere(
+        "to_tsvector(product.name || ' ' || product.description) @@ to_tsquery(:nameOrDescription)",
+        { nameOrDescription: args.nameOrDescription.split(' ').join('|') },
+      );
+    }
 
     return query;
   }
