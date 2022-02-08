@@ -4,7 +4,9 @@ import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
 import { createConnection, getConnection } from 'typeorm';
+import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 
+import { TypeOrmConfigService } from '@/orm/type-orm-config.service';
 import { Picture } from '@/picture/models/picture.model';
 import { Product } from '@/product/models/product.model';
 import { User } from '@/user/models/user.model';
@@ -12,7 +14,9 @@ import { User } from '@/user/models/user.model';
 async function seed() {
   console.log('Seeding started');
 
-  await createTypeormConnection();
+  await reuseOrcreateTypeormConnection();
+
+  await getConnection().synchronize(true);
 
   const pictures = await importPictures();
   const products: Product[] = [];
@@ -247,18 +251,15 @@ async function generateHash(pipeline: sharp.Sharp) {
   return encode(new Uint8ClampedArray(data), info.width, info.height, 4, 4);
 }
 
-async function createTypeormConnection() {
-  return createConnection({
-    type: 'postgres',
-    host: 'localhost',
-    port: 5433,
-    database: 'happypal_technical_test',
-    username: 'hpal',
-    password: 'hpal',
-    entities: [path.join(__dirname, '..', '**/*.model{.ts,.js}')],
-    migrations: [path.join(__dirname, '..', 'migrations/**{.ts,.js}')],
-    synchronize: true,
-  });
+async function reuseOrcreateTypeormConnection() {
+  try {
+    return getConnection();
+  } catch (e) {
+    console.log('No existing connection');
+    return createConnection(
+      new TypeOrmConfigService().createTypeOrmOptions() as PostgresConnectionOptions,
+    );
+  }
 }
 
 seed();
