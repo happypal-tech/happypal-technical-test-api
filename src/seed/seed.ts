@@ -3,7 +3,7 @@ import { encode } from 'blurhash';
 import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
-import { createConnection, getConnection } from 'typeorm';
+import { Connection, createConnection, getConnection } from 'typeorm';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 
 import { TypeOrmConfigService } from '@/orm/type-orm-config.service';
@@ -251,7 +251,7 @@ async function generateHash(pipeline: sharp.Sharp) {
   return encode(new Uint8ClampedArray(data), info.width, info.height, 4, 4);
 }
 
-async function reuseOrcreateTypeormConnection() {
+async function reuseOrcreateTypeormConnection(): Promise<Connection> {
   try {
     return getConnection();
   } catch (e) {
@@ -262,4 +262,6 @@ async function reuseOrcreateTypeormConnection() {
   }
 }
 
-seed();
+if (process.argv[2] === 'init') {
+  seed();
+}
