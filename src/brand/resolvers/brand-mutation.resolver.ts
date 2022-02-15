@@ -9,7 +9,7 @@ export class BrandMutationResolver {
     constructor(private readonly brandService: BrandService) { }
 
     @Mutation(() => BrandCreateOutput)
-    productCreate(
+    brandCreate(
         @Viewer() viewer: Viewer,
         @Args('input') input: BrandCreateInput,
     ) {
@@ -17,7 +17,7 @@ export class BrandMutationResolver {
     }
 
     @Mutation(() => BrandUpdateOutput)
-    productUpdate(
+    brandUpdate(
         @Viewer() viewer: Viewer,
         @Args('input') input: BrandUpdateInput,
     ) {
