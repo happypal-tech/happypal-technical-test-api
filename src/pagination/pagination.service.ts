@@ -21,10 +21,10 @@ export class PaginationService {
     T extends Node,
     N extends Node,
     RT extends { node: N },
-  >(
-    query: SelectQueryBuilder<T>,
-    args: PaginationArgs,
-    transformer: (entity: T, raw: any) => RT,
+    >(
+      query: SelectQueryBuilder<T>,
+      args: PaginationArgs,
+      transformer: (entity: T, raw: any) => RT,
   ) {
     const countQuery = query.clone();
     const entitiesQuery = query.clone().take(args.take).skip(args.skip);
@@ -56,7 +56,7 @@ export class PaginationService {
       pageInfo: {
         pageCount: pageCount === Infinity ? 0 : pageCount,
         hasNextPage: (args.skip || 0) + (args.take || 0) < totalCount,
-        hasPreviousPage: (args.take || 0) > 0,
+        hasPreviousPage: (args.skip || 0) > 0,
       },
       nodes: nodes as RT['node'][],
       edges: edges,

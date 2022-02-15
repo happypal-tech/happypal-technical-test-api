@@ -8,6 +8,7 @@ import { createConnection, getConnection } from 'typeorm';
 import { Picture } from '@/picture/models/picture.model';
 import { Product } from '@/product/models/product.model';
 import { User } from '@/user/models/user.model';
+import { Brand } from '@/brand/models/brand.model';
 
 async function seed() {
   console.log('Seeding started');
@@ -15,10 +16,29 @@ async function seed() {
   await createTypeormConnection();
 
   const pictures = await importPictures();
+  const brands: Brand[] = [];
   const products: Product[] = [];
   const users: User[] = [];
 
   const password = await hashPassword('password');
+
+  brands.push(
+    new Brand({
+      name: 'Adidas'
+    })
+  );
+
+  brands.push(
+    new Brand({
+      name: 'Decathlon'
+    })
+  );
+
+  brands.push(
+    new Brand({
+      name: 'Leclerc'
+    })
+  );
 
   users.push(
     new User({
@@ -49,6 +69,7 @@ async function seed() {
       pictures: [pictures['bike.jpeg']],
       priceCurrency: 'EUR',
       priceValue: 150000,
+      brand: brands[0],
     }),
   );
 
@@ -60,6 +81,7 @@ async function seed() {
       pictures: [pictures['car-model.jpeg']],
       priceCurrency: 'EUR',
       priceValue: 1500,
+      brand: brands[1],
     }),
   );
 
@@ -71,6 +93,7 @@ async function seed() {
       pictures: [pictures['chanel.jpeg']],
       priceCurrency: 'EUR',
       priceValue: 66600,
+      brand: brands[2],
     }),
   );
 
@@ -82,6 +105,7 @@ async function seed() {
       pictures: [pictures['coffee.jpeg']],
       priceCurrency: 'EUR',
       priceValue: 1500,
+      brand: brands[0],
     }),
   );
 
@@ -93,6 +117,7 @@ async function seed() {
       pictures: [pictures['controller.jpeg']],
       priceCurrency: 'EUR',
       priceValue: 3500,
+      brand: brands[0],
     }),
   );
 
@@ -103,6 +128,7 @@ async function seed() {
       pictures: [pictures['glasses.jpeg']],
       priceCurrency: 'EUR',
       priceValue: 6000,
+      brand: brands[1],
     }),
   );
 
@@ -113,6 +139,7 @@ async function seed() {
       pictures: [pictures['headphones.jpeg']],
       priceCurrency: 'EUR',
       priceValue: 12000,
+      brand: brands[2],
     }),
   );
 
@@ -123,6 +150,7 @@ async function seed() {
       pictures: [pictures['lipstick.jpeg']],
       priceCurrency: 'EUR',
       priceValue: 2450,
+      brand: brands[0],
     }),
   );
 
@@ -133,6 +161,7 @@ async function seed() {
       pictures: [pictures['shoe.jpeg']],
       priceCurrency: 'EUR',
       priceValue: 9999,
+      brand: brands[0],
     }),
   );
 
@@ -144,6 +173,7 @@ async function seed() {
       pictures: [pictures['watch-1.jpeg'], pictures['watch-2.jpeg']],
       priceCurrency: 'EUR',
       priceValue: 25000,
+      brand: brands[2],
     }),
   );
 
@@ -154,6 +184,7 @@ async function seed() {
       pictures: [pictures['water.jpeg']],
       priceCurrency: 'EUR',
       priceValue: 250,
+      brand: brands[0],
     }),
   );
 
@@ -172,8 +203,9 @@ async function seed() {
   }
 
   await getConnection().transaction(async (manager) => {
-    await manager.save(users);
-    await manager.save(products);
+    await manager.upsert(Brand, brands, ['name']);
+    await manager.upsert(User, users, ['email']);
+    await manager.upsert(Product, products, ['name']);
   });
 
   console.log('Seeding completed');

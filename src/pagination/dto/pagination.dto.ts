@@ -43,7 +43,7 @@ export class PaginationPageInfo {
 export abstract class Pagination<
   N extends Node = Node,
   E extends Edge<N> = Edge<N>,
-> {
+  > {
   @Field()
   totalCount: number;
 

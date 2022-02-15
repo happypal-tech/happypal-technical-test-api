@@ -15,6 +15,7 @@ import { PaginationModule } from './pagination/pagination.module';
 import { PictureModule } from './picture/picture.module';
 import { ProductModule } from './product/product.module';
 import { UserModule } from './user/user.module';
+import { BrandModule } from './brand/brand.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { UserModule } from './user/user.module';
     ProductModule,
     PaginationModule,
     PictureModule,
+    BrandModule,
   ],
   controllers: [AppController],
   providers: [

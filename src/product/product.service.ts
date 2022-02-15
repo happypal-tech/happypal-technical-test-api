@@ -1,6 +1,8 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -21,6 +23,8 @@ import {
   ProductsPaginationArgs,
 } from './dto/products-pagination.dto';
 import { Product } from './models/product.model';
+import { ProductUpdateInput, ProductUpdateOutput } from './dto/product-update.dto';
+import { Brand } from '@/brand/models/brand.model';
 
 @Injectable()
 export class ProductService {
@@ -29,7 +33,7 @@ export class ProductService {
     private readonly productRepo: Repository<Product>,
 
     private readonly pictureService: PictureService,
-  ) {}
+  ) { }
 
   /**
    * SELF RESOLVERS
@@ -41,6 +45,16 @@ export class ProductService {
       .relation(Product, 'pictures')
       .of(parent)
       .loadMany();
+  }
+
+  public async getProductOwner(viewer: Viewer, parent: Product) {
+    console.log(parent)
+    return this.productRepo
+      .createQueryBuilder('product')
+      .where('product.id = :productId')
+      .relation(Product, 'owner')
+      .of(parent)
+      .loadOne();
   }
 
   /**
@@ -69,6 +83,29 @@ export class ProductService {
     );
   }
 
+  public async getBrandProductsPagination(
+    viewer: Viewer,
+    parent: Brand,
+    args: ProductsPaginationArgs,
+  ): Promise<ProductsPagination> {
+    const query = await this.generateProductFilteredQuery(
+      viewer,
+      args,
+      'product',
+    );
+
+    query
+      .innerJoin('product.brand', 'brand')
+      .where('brand.id = :parentId')
+      .setParameters({ parentId: parent.id });
+
+    return PaginationService.generatePaginationOutput(
+      query,
+      args,
+      (entity) => ({ node: entity }),
+    );
+  }
+
   /**
    * QUERIES
    */
@@ -88,7 +125,7 @@ export class ProductService {
     viewer: Viewer,
     args: ProductsPaginationArgs,
   ): Promise<ProductsPagination> {
-    const query = await this.generateProductQuery(viewer, 'product');
+    const query = await this.generateProductFilteredQuery(viewer, args, 'product');
 
     return PaginationService.generatePaginationOutput(
       query,
@@ -141,6 +178,25 @@ export class ProductService {
     return { product };
   }
 
+  public async productUpdate(viewer: Viewer, productUpdateInput: ProductUpdateInput): Promise<ProductUpdateOutput> {
+    if (!viewer) {
+      throw new UnauthorizedException();
+    }
+
+    const product = await this.productRepo.preload({ ...productUpdateInput });
+    if (!product) {
+      throw new NotFoundException();
+    }
+
+    if (product.owner.id != viewer.id) {
+      throw new ForbiddenException();
+    }
+
+    await this.productRepo.save(product);
+
+    return { product };
+  }
+
   /**
    * UTILS
    */
@@ -157,6 +213,14 @@ export class ProductService {
     alias = 'product',
   ) {
     const query = await this.generateProductQuery(viewer, alias);
+
+    if (args.productName) {
+      query.andWhere("LOWER(product.name) like :name", { name: `%${args.productName.toLowerCase()}%` })
+    }
+
+    if (args.ownerId) {
+      query.andWhere("product.ownerId = :ownerId", { ownerId: args.ownerId });
+    }
 
     return query;
   }

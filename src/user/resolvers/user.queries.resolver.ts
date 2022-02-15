@@ -7,7 +7,7 @@ import { UserService } from '../user.service';
 
 @Resolver(User)
 export class UserQueriesResolver {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
   @Query(() => User, { nullable: true })
   public viewer(@Viewer() viewer: Viewer) {

@@ -21,6 +21,7 @@ import {
 import { ResetPasswordToken } from './models/reset-password-token.model';
 import { JwtAccessTokenPayload } from './strategies/jwt.strategy';
 import { JwtRefreshTokenPayload } from './strategies/jwt-refresh.strategy';
+import { Role } from '@/user/enums/role.enum';
 
 @Injectable()
 export class AuthService {
@@ -34,7 +35,7 @@ export class AuthService {
     private readonly resetPasswordTokenRepo: Repository<ResetPasswordToken>,
 
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
   /**
    * Method used by Passport strategy to retrieve a valid User or throw accordingly based on email / password combination

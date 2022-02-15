@@ -10,6 +10,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 
 import { IS_PUBLIC_KEY } from '../decorators/Public.decorator';
+import { getRequestByContext } from '../utils/getRequest';
 
 type ContextType = 'http' | 'graphql';
 
@@ -20,12 +21,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   }
 
   getRequest(context: ExecutionContext) {
-    switch (context.getType<ContextType>()) {
-      case 'graphql':
-        return this.getGraphQLRequest(context);
-      case 'http':
-        return this.getHTTPRequest(context);
-    }
+    return getRequestByContext(context);
   }
 
   handleRequest(err: any, user: any, info: any) {
@@ -53,14 +49,5 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     }
 
     return super.canActivate(context);
-  }
-
-  private getGraphQLRequest(context: ExecutionContext) {
-    return GqlExecutionContext.create(context).getContext<{ req: Request }>()
-      .req;
-  }
-
-  private getHTTPRequest(context: ExecutionContext) {
-    return context.switchToHttp().getRequest();
   }
 }
