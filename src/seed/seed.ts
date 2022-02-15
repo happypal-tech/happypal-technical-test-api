@@ -3,16 +3,20 @@ import { encode } from 'blurhash';
 import fs from 'fs';
 import path from 'path';
 import sharp from 'sharp';
-import { createConnection, getConnection } from 'typeorm';
+import { Connection, createConnection, getConnection } from 'typeorm';
+import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 
+import { TypeOrmConfigService } from '@/orm/type-orm-config.service';
 import { Picture } from '@/picture/models/picture.model';
 import { Product } from '@/product/models/product.model';
 import { User } from '@/user/models/user.model';
 
-async function seed() {
+export const seed = async function () {
   console.log('Seeding started');
 
-  await createTypeormConnection();
+  await reuseOrcreateTypeormConnection();
+
+  await getConnection().synchronize(true);
 
   const pictures = await importPictures();
   const products: Product[] = [];
@@ -55,7 +59,7 @@ async function seed() {
   products.push(
     new Product({
       name: 'Voiture miniature',
-      description: 'Une jolie petit voiture',
+      description: 'Une jolie petite voiture',
       owner: users[0],
       pictures: [pictures['car-model.jpeg']],
       priceCurrency: 'EUR',
@@ -128,7 +132,7 @@ async function seed() {
 
   products.push(
     new Product({
-      name: 'Chaussres de sport',
+      name: 'Chaussures de sport',
       owner: users[0],
       pictures: [pictures['shoe.jpeg']],
       priceCurrency: 'EUR',
@@ -177,7 +181,7 @@ async function seed() {
   });
 
   console.log('Seeding completed');
-}
+};
 
 async function hashPassword(password: string) {
   return bcrypt.hash(password, 10);
@@ -247,18 +251,17 @@ async function generateHash(pipeline: sharp.Sharp) {
   return encode(new Uint8ClampedArray(data), info.width, info.height, 4, 4);
 }
 
-async function createTypeormConnection() {
-  return createConnection({
-    type: 'postgres',
-    host: 'localhost',
-    port: 5433,
-    database: 'happypal_technical_test',
-    username: 'hpal',
-    password: 'hpal',
-    entities: [path.join(__dirname, '..', '**/*.model{.ts,.js}')],
-    migrations: [path.join(__dirname, '..', 'migrations/**{.ts,.js}')],
-    synchronize: true,
-  });
+async function reuseOrcreateTypeormConnection(): Promise<Connection> {
+  try {
+    return getConnection();
+  } catch (e) {
+    console.log('No existing connection');
+    return createConnection(
+      new TypeOrmConfigService().createTypeOrmOptions() as PostgresConnectionOptions,
+    );
+  }
 }
 
-seed();
+if (process.argv[2] === 'init') {
+  seed();
+}

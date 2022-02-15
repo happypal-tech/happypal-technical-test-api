@@ -1,6 +1,7 @@
 lockfileVersion: 5.3
 
 specifiers:
+  '@golevelup/ts-jest': ^0.3.2
   '@nestjs/cli': ^8.0.0
   '@nestjs/common': ^8.0.0
   '@nestjs/core': ^8.0.0
@@ -91,6 +92,7 @@ dependencies:
   typeorm: 0.2.41_pg@8.7.1
 
 devDependencies:
+  '@golevelup/ts-jest': 0.3.2
   '@nestjs/cli': 8.1.6_eslint@8.4.1
   '@nestjs/schematics': 8.0.5_typescript@4.5.4
   '@nestjs/testing': 8.2.3_51e6544c14e6c411f90104b32018d9ce
@@ -623,6 +625,10 @@ packages:
       strip-json-comments: 3.1.1
     transitivePeerDependencies:
       - supports-color
+    dev: true
+
+  /@golevelup/ts-jest/0.3.2:
+    resolution: {integrity: sha512-hv+j/vau2oj5CuhY1CrTs48Qu+ZVXpm/56OzKcL2KVN8+yc0ZIMbvTIld1wbrT1RrvAuwfDmUM2s3aSy7veuwg==}
     dev: true
 
   /@graphql-tools/merge/6.2.5_graphql@15.8.0:

@@ -1,5 +1,6 @@
 import { ArgsType, Field, ObjectType } from '@nestjs/graphql';
 
+import { IsOptional } from 'class-validator';
 import { SelectQueryBuilder } from 'typeorm';
 
 import { Edge } from '@/pagination/dto/edge.dto';
@@ -25,4 +26,8 @@ export class ProductsPagination extends Pagination {
 }
 
 @ArgsType()
-export class ProductsPaginationArgs extends PaginationArgs {}
+export class ProductsPaginationArgs extends PaginationArgs {
+  @Field({ nullable: true })
+  @IsOptional()
+  nameOrDescription?: string;
+}

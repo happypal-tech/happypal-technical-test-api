@@ -31,10 +31,11 @@ export class Product extends Node {
   @Column({ type: 'varchar', length: 3 })
   priceCurrency: Currency;
 
+  @Field(() => User)
   @ManyToOne(() => User, (target) => target.productsOwned, { nullable: false })
   owner: User;
 
-  @Field(() => Picture, { nullable: true })
+  @Field(() => [Picture], { nullable: true })
   @ManyToMany(() => Picture)
   @JoinTable()
   pictures: Picture[];

@@ -9,6 +9,7 @@ import { Repository } from 'typeorm';
 
 import { Viewer } from '@/auth/decorators/Viewer.decorator';
 import { PaginationService } from '@/pagination/pagination.service';
+import { Picture } from '@/picture/models/picture.model';
 import { PictureService } from '@/picture/picture.service';
 import { User } from '@/user/models/user.model';
 
@@ -23,24 +24,25 @@ import {
 import { Product } from './models/product.model';
 
 @Injectable()
-export class ProductService {
+export class ProductService extends PaginationService {
   constructor(
     @InjectRepository(Product)
     private readonly productRepo: Repository<Product>,
-
     private readonly pictureService: PictureService,
-  ) {}
+  ) {
+    super();
+  }
 
   /**
    * SELF RESOLVERS
    */
-  public async getProductPictures(viewer: Viewer, parent: Product) {
-    return this.productRepo
-      .createQueryBuilder('product')
-      .where('product.id = :productId')
-      .relation(Product, 'pictures')
-      .of(parent)
-      .loadMany();
+  public async getProductPictures(
+    viewer: Viewer,
+    parent: Product,
+  ): Promise<Picture[]> {
+    const query = this.generateProductQuery(viewer);
+
+    return query.relation('pictures').of(parent).loadMany<Picture>();
   }
 
   /**
@@ -51,22 +53,16 @@ export class ProductService {
     parent: User,
     args: ProductsPaginationArgs,
   ): Promise<ProductsPagination> {
-    const query = await this.generateProductFilteredQuery(
-      viewer,
-      args,
-      'product',
-    );
+    const query = this.generateProductFilteredQuery(viewer, args);
 
     query
       .innerJoin('product.owner', 'owner')
       .where('owner.id = :parentId')
       .setParameters({ parentId: parent.id });
 
-    return PaginationService.generatePaginationOutput(
-      query,
-      args,
-      (entity) => ({ node: entity }),
-    );
+    return this.generatePaginationOutput(query, args, (entity) => ({
+      node: entity,
+    }));
   }
 
   /**
@@ -75,26 +71,26 @@ export class ProductService {
   public async getRootProduct(
     viewer: Viewer,
     productId: Product['id'],
-  ): Promise<Product | undefined> {
-    const query = await this.generateProductQuery(viewer, 'product');
+  ): Promise<Product> {
+    const query = this.generateProductQuery(viewer);
 
     return query
+      .innerJoinAndSelect('product.owner', 'owner')
       .andWhere('product.id = :productId')
       .setParameters({ productId })
-      .getOne();
+      .getOneOrFail();
   }
 
   public async getRootProductsPagination(
     viewer: Viewer,
     args: ProductsPaginationArgs,
   ): Promise<ProductsPagination> {
-    const query = await this.generateProductQuery(viewer, 'product');
+    const query = this.generateProductFilteredQuery(viewer, args);
+    query.innerJoinAndSelect('product.owner', 'owner');
 
-    return PaginationService.generatePaginationOutput(
-      query,
-      args,
-      (entity) => ({ node: entity }),
-    );
+    return this.generatePaginationOutput(query, args, (entity) => ({
+      node: entity,
+    }));
   }
 
   /**
@@ -109,7 +105,7 @@ export class ProductService {
       throw new UnauthorizedException();
     }
 
-    const picturesQuery = await this.pictureService.generatePictureQuery(
+    const picturesQuery = this.pictureService.generatePictureQuery(
       viewer,
       'picture',
     );
@@ -145,18 +141,25 @@ export class ProductService {
    * UTILS
    */
 
-  public async generateProductQuery(viewer: Viewer, alias = 'product') {
+  public generateProductQuery(viewer: Viewer, alias = 'product') {
     const query = this.productRepo.createQueryBuilder(alias);
 
     return query;
   }
 
-  public async generateProductFilteredQuery(
+  public generateProductFilteredQuery(
     viewer: Viewer,
     args: ProductsPaginationArgs,
     alias = 'product',
   ) {
-    const query = await this.generateProductQuery(viewer, alias);
+    const query = this.generateProductQuery(viewer, alias);
+
+    if (args.nameOrDescription) {
+      query.andWhere(
+        "to_tsvector(product.name || ' ' || product.description) @@ to_tsquery(:nameOrDescription)",
+        { nameOrDescription: args.nameOrDescription.split(' ').join('|') },
+      );
+    }
 
     return query;
   }
