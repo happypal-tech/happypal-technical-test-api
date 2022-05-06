@@ -1,0 +1,14 @@
+{
+  "name": "happypal-technical-test-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:david-piatek/happypal-technical-test-api.git",
+  "author": "David Piatek <dav.piatek@gmail.com>",
+  "license": "UNLICENDED",
+  "private": "true",
+  "devDependencies": {
+    "@commitlint/cli": "^16.2.4",
+    "@commitlint/config-conventional": "^16.2.4",
+    "husky": "^7.0.4"
+  }
+}

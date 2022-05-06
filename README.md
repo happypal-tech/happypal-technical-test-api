@@ -1,5 +1,16 @@
 # Test Technique Happypal Front & Back
 
+## Overview
+
+technical test in free flight
+
+## Requirements
+
+* [GNU Make](https://www.gnu.org/software/make/)
+* [Docker](https://docs.docker.com/get-docker/)
+* [NodeJs](https://nodejs.org/en/download/)
+* [pnpm](https://pnpm.io/fr/installation) 
+
 ## Préambule:
 
 Ce test a pour but de tester différents aspects que vous serez amené à rencontrer tous les jours. Vous avez carte blanche quant aux détails d'implémentations, il s'agit ici de tester votre projection dans un produit (simple) et les solutions que vous apportez.
@@ -114,3 +125,23 @@ axios.request(options)
     console.error(error);
   });
 ```
+
+## Resources
+
+* [Common local Docker](./common-local-docker/README.md)
+
+## Commit Conventions
+
+This project uses [CommitLint](https://github.com/conventional-changelog/commitlint) and [Husky](https://github.com/typicode/husky) to force the devs to write comprehensive and clean commit message by following a commit convention.   
+We are currently using the [@commitlint/config-conventional ](https://github.com/conventional-changelog/commitlint/tree/master/%40commitlint/config-conventional) preset   
+The commit message should be structured as follows:
+
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+You can learn more about the commit convention at [Conventional Commits](https://conventionalcommits.org/) website.
