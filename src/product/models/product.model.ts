@@ -27,6 +27,11 @@ export class Product extends Node {
   @Column()
   priceValue: number;
 
+  // product is available or not, available by default
+  @Field()
+  @Column('boolean', {default: true})
+  isAvailable: boolean;
+
   @Field(() => CurrencyScalar)
   @Column({ type: 'varchar', length: 3 })
   priceCurrency: Currency;
