@@ -14,6 +14,7 @@ import { SelectQueryBuilder } from 'typeorm';
 import { Node } from '@/node/models/node.model';
 
 import { PaginationArgs } from './dto/pagination.dto';
+import { Product } from '@/product/models/product.model';
 
 @Injectable()
 export class PaginationService {
@@ -28,6 +29,18 @@ export class PaginationService {
   ) {
     const countQuery = query.clone();
     const entitiesQuery = query.clone().take(args.take).skip(args.skip);
+    let priceAverage = 0;
+
+    if (query.alias == 'productPagination') {
+      const priceAverageQuery = await query
+        .clone()
+        .select('AVG("priceValue")', 'avg')
+        .getRawOne();
+
+      priceAverage = priceAverageQuery.avg;
+    }
+
+    if (args.order) entitiesQuery.addOrderBy(args.order.name, args.order.sort);
 
     const [totalCount, { entities, raw }] = await Promise.all([
       countQuery.getCount(),
@@ -52,6 +65,7 @@ export class PaginationService {
     const pageCount = Math.ceil(totalCount / (args.take || 0));
 
     return {
+      priceAverage,
       totalCount,
       pageInfo: {
         pageCount: pageCount === Infinity ? 0 : pageCount,
