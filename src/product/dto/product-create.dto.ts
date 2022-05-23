@@ -3,6 +3,7 @@ import { Field, ID, InputType, ObjectType } from '@nestjs/graphql';
 import {
   ArrayMinSize,
   IsArray,
+  IsBoolean,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -42,6 +43,11 @@ export class ProductCreateInput {
   @Field(() => CurrencyScalar)
   @IsString()
   priceCurrency: Currency;
+  
+  @Field()
+  @IsBoolean()
+  @IsNotEmpty()
+  isAvailable: boolean
 }
 
 @ObjectType()

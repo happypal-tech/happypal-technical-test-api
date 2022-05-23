@@ -7,6 +7,10 @@ import {
   ProductCreateOutput,
 } from '../dto/product-create.dto';
 import { ProductService } from '../product.service';
+import {
+  ProductAvaibilityInput,
+  ProductAvaibilityOutput,
+} from '../dto/product-avaibility.dto';
 
 @Resolver()
 export class ProductMutationResolver {
@@ -18,5 +22,13 @@ export class ProductMutationResolver {
     @Args('input') input: ProductCreateInput,
   ) {
     return this.productService.productCreate(viewer, input);
+  }
+
+  @Mutation(() => ProductAvaibilityOutput)
+  changeProductAvaibility(
+    @Viewer() viewer: Viewer,
+    @Args('input') input: ProductAvaibilityInput,
+  ) {
+    return this.productService.updateProductAvaibility(viewer, input);
   }
 }

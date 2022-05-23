@@ -1,9 +1,12 @@
 import {
   ArgsType,
   Field,
+  InputType,
   Int,
   InterfaceType,
   ObjectType,
+  ResolveField,
+  Resolver,
 } from '@nestjs/graphql';
 
 import { IsOptional, Max, Min } from 'class-validator';
@@ -12,6 +15,16 @@ import { SelectQueryBuilder } from 'typeorm';
 import { Node } from '@/node/models/node.model';
 
 import { Edge } from './edge.dto';
+import { SortDirection } from './sort-direction.dto';
+
+@InputType()
+export class PaginationSort {
+  @Field(() => String)
+  name: string = 'ID';
+
+  @Field(() => SortDirection)
+  sort: SortDirection = SortDirection.DESC;
+}
 
 @ArgsType()
 export class PaginationArgs {
@@ -25,6 +38,10 @@ export class PaginationArgs {
   @Min(0)
   @IsOptional()
   skip?: number = 0;
+
+  @Field(() => PaginationSort, { nullable: true })
+  @IsOptional()
+  order?: PaginationSort;
 }
 
 @ObjectType()

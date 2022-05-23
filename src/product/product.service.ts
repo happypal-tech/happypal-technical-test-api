@@ -21,6 +21,11 @@ import {
   ProductsPaginationArgs,
 } from './dto/products-pagination.dto';
 import { Product } from './models/product.model';
+import {
+  ProductAvaibilityInput,
+  ProductAvaibilityOutput,
+} from './dto/product-avaibility.dto';
+import { forEach } from 'lodash';
 
 @Injectable()
 export class ProductService {
@@ -88,7 +93,15 @@ export class ProductService {
     viewer: Viewer,
     args: ProductsPaginationArgs,
   ): Promise<ProductsPagination> {
-    const query = await this.generateProductQuery(viewer, 'product');
+    const query = await this.generateProductQuery(viewer, 'productPagination');
+
+    const priceAverageQuery = query.clone();
+
+    if (args.filter) {
+      query
+        .andWhere('productPagination.isAvailable = :available')
+        .setParameters({ available: args.filter.isAvailable });
+    }
 
     return PaginationService.generatePaginationOutput(
       query,
@@ -142,6 +155,30 @@ export class ProductService {
   }
 
   /**
+   * Mutation to change availability of a product
+   * @param viewer - user token
+   * @param input - object with 2 props : id (string) and isAvailable (boolean) of a product
+   * @returns - Promise with a product when resolved
+   */
+
+  public async updateProductAvaibility(
+    viewer: Viewer,
+    input: ProductAvaibilityInput,
+  ): Promise<ProductAvaibilityOutput> {
+    if (!viewer) {
+      throw new UnauthorizedException();
+    }
+
+    const query = await this.generateProductUpdate()
+      .set({ isAvailable: input.isAvailable })
+      .where('id = :id', { id: input.id })
+      .returning('id, name, "isAvailable"')
+      .execute();
+
+    return { product: query.raw[0] };
+  }
+
+  /**
    * UTILS
    */
 
@@ -149,6 +186,11 @@ export class ProductService {
     const query = this.productRepo.createQueryBuilder(alias);
 
     return query;
+  }
+
+  // generate an update query for a product
+  public generateProductUpdate() {
+    return this.productRepo.createQueryBuilder().update(Product);
   }
 
   public async generateProductFilteredQuery(
